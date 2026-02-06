@@ -4,10 +4,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-
-// Use localhost for iOS/Web, 10.0.2.2 for Android Emulator
-// For Physical Device: Replace with your PC's IP (e.g., 'http://192.168.1.5:5000')
-const API_URL = 'https://tirumla-backend.vercel.app';
+import { API_URL } from '@/constants/api';
 
 export default function ExpertDashboard() {
     const router = useRouter();

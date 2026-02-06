@@ -1,16 +1,51 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { useAuth } from '@/context/AuthContext';
+
 const { width } = Dimensions.get('window');
 
 export default function ProfileScreen() {
     const router = useRouter();
+    const { user, logout, refreshUser } = useAuth();
 
-    const CROPS = ['Wheat', 'Rice', 'Mustard'];
+    useEffect(() => {
+        if (user) {
+            refreshUser();
+        }
+    }, []);
+
+    if (!user) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 40 }]}>
+                <Ionicons name="person-circle-outline" size={80} color="#ccc" />
+                <Text style={{ fontSize: 18, fontWeight: 'bold', marginTop: 20, color: '#333' }}>Not Logged In</Text>
+                <Text style={{ textAlign: 'center', color: '#666', marginTop: 10 }}>Connect with us to manage your profile and view your farm details.</Text>
+                <TouchableOpacity
+                    style={[styles.loginBtn, { marginTop: 30, width: '100%' }]}
+                    onPress={() => router.push('/auth/profile-setup')}
+                >
+                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>Register / Setup Profile</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={{ marginTop: 20 }}
+                    onPress={() => router.push('/expert/login')}
+                >
+                    <Text style={{ color: Colors.light.primary, fontWeight: '600' }}>Expert Login</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
+    const isExpert = user.role === 'EXPERT';
+    const profile = user.profile || (isExpert ? user.expertProfile : user.farmerProfile);
+    const name = profile?.fullName || profile?.name || 'Agri User';
+    const crops = profile?.crops ? (typeof profile.crops === 'string' ? profile.crops.split(',').map((c: string) => c.trim()) : []) : [];
+    const avatar = profile?.avatar || profile?.profileImage;
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -30,15 +65,20 @@ export default function ProfileScreen() {
                 <View style={styles.profileHeader}>
                     <View style={styles.avatarContainer}>
                         <Image
-                            source={{ uri: 'https://ui-avatars.com/api/?name=Rahul+Kumar&background=0D8ABC&color=fff&size=200' }}
+                            source={{ uri: avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=0D8ABC&color=fff&size=200` }}
                             style={styles.avatar}
                         />
-                        <TouchableOpacity style={styles.editAvatarBtn}>
+                        <TouchableOpacity
+                            style={styles.editAvatarBtn}
+                            onPress={() => router.push({ pathname: '/auth/profile-setup', params: { mode: 'update' } })}
+                        >
                             <Ionicons name="camera" size={16} color="#444" />
                         </TouchableOpacity>
                     </View>
-                    <Text style={styles.name}>Rahul Kumar</Text>
-                    <Text style={styles.location}><Ionicons name="location" size={14} color="#ccc" /> Rampur, Uttar Pradesh</Text>
+                    <Text style={styles.name}>{name || 'Agri User'}</Text>
+                    <Text style={styles.location}>
+                        <Ionicons name="location" size={14} color="#ccc" /> {profile?.village || profile?.location || 'Unknown'}, {profile?.state || 'India'}
+                    </Text>
                 </View>
             </View>
 
@@ -47,18 +87,18 @@ export default function ProfileScreen() {
                 {/* Stats / Info Grid */}
                 <View style={styles.statsRow}>
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>5.2</Text>
+                        <Text style={styles.statValue}>{profile?.landSize || '0'}</Text>
                         <Text style={styles.statLabel}>Acres</Text>
                     </View>
                     <View style={styles.divider} />
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>12</Text>
+                        <Text style={styles.statValue}>{crops.length}</Text>
                         <Text style={styles.statLabel}>Crops</Text>
                     </View>
                     <View style={styles.divider} />
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>4.8</Text>
-                        <Text style={styles.statLabel}>Rating</Text>
+                        <Text style={styles.statValue}>{user.wallet?.balance || '0'}</Text>
+                        <Text style={styles.statLabel}>Wallet</Text>
                     </View>
                 </View>
 
@@ -66,7 +106,7 @@ export default function ProfileScreen() {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Personal Details</Text>
-                        <TouchableOpacity onPress={() => router.push('/auth/profile-setup')}>
+                        <TouchableOpacity onPress={() => router.push({ pathname: '/auth/profile-setup', params: { mode: 'update' } })}>
                             <Text style={styles.editLink}>Edit</Text>
                         </TouchableOpacity>
                     </View>
@@ -75,7 +115,7 @@ export default function ProfileScreen() {
                             <Ionicons name="call-outline" size={20} color="#666" style={styles.infoIcon} />
                             <View>
                                 <Text style={styles.infoLabel}>Phone Number</Text>
-                                <Text style={styles.infoValue}>+91 98765 43210</Text>
+                                <Text style={styles.infoValue}>{profile?.phone || 'Not provided'}</Text>
                             </View>
                         </View>
                         <View style={styles.separator} />
@@ -83,7 +123,7 @@ export default function ProfileScreen() {
                             <Ionicons name="mail-outline" size={20} color="#666" style={styles.infoIcon} />
                             <View>
                                 <Text style={styles.infoLabel}>Email</Text>
-                                <Text style={styles.infoValue}>rahul.kumar@example.com</Text>
+                                <Text style={styles.infoValue}>{user.email}</Text>
                             </View>
                         </View>
                         <View style={styles.separator} />
@@ -91,46 +131,38 @@ export default function ProfileScreen() {
                             <Ionicons name="language-outline" size={20} color="#666" style={styles.infoIcon} />
                             <View>
                                 <Text style={styles.infoLabel}>Language</Text>
-                                <Text style={styles.infoValue}>Hindi, English</Text>
+                                <Text style={styles.infoValue}>{profile?.preferredLanguage || 'English'}</Text>
                             </View>
                         </View>
                     </View>
                 </View>
 
                 {/* Crops */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>My Crops</Text>
-                    <View style={styles.cropsContainer}>
-                        {CROPS.map((crop, index) => (
-                            <View key={index} style={styles.cropChip}>
-                                <Ionicons name="leaf" size={16} color={Colors.light.primary} style={{ marginRight: 6 }} />
-                                <Text style={styles.cropText}>{crop}</Text>
-                            </View>
-                        ))}
-                        <TouchableOpacity style={styles.addCropBtn} onPress={() => router.push('/auth/profile-setup')}>
-                            <Ionicons name="add" size={20} color="#666" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-
-                {/* Expert Mode Entry */}
-                <TouchableOpacity
-                    style={styles.expertCard}
-                    onPress={() => router.push('/expert/login')}
-                >
-                    <LinearGradient
-                        colors={['#1a2e05', '#2f4f10']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.expertGradient}
-                    >
-                        <View>
-                            <Text style={styles.expertTitle}>Switch to Expert Mode</Text>
-                            <Text style={styles.expertSubtitle}>Manage consultations & earnings</Text>
+                {crops.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>My Crops</Text>
+                        <View style={styles.cropsContainer}>
+                            {crops.map((crop: string, index: number) => (
+                                <View key={index} style={styles.cropChip}>
+                                    <Ionicons name="leaf" size={16} color={Colors.light.primary} style={{ marginRight: 6 }} />
+                                    <Text style={styles.cropText}>{crop}</Text>
+                                </View>
+                            ))}
+                            <TouchableOpacity style={styles.addCropBtn} onPress={() => router.push({ pathname: '/auth/profile-setup', params: { mode: 'update' } })}>
+                                <Ionicons name="add" size={20} color="#666" />
+                            </TouchableOpacity>
                         </View>
-                        <Ionicons name="arrow-forward-circle" size={32} color="#fff" />
-                    </LinearGradient>
+                    </View>
+                )}
+
+
+                {/* Logout Button */}
+                <TouchableOpacity
+                    style={[styles.infoCard, { flexDirection: 'row', alignItems: 'center', marginTop: 10, borderColor: '#fee2e2', borderWidth: 1 }]}
+                    onPress={logout}
+                >
+                    <Ionicons name="log-out-outline" size={20} color="#ef4444" style={{ marginRight: 12 }} />
+                    <Text style={{ color: '#ef4444', fontWeight: 'bold' }}>Logout Account</Text>
                 </TouchableOpacity>
 
                 <View style={{ height: 100 }} />
@@ -141,6 +173,12 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F8F9FA' },
+    loginBtn: {
+        backgroundColor: Colors.light.primary,
+        paddingVertical: 15,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
     headerContainer: { height: 280, position: 'relative', marginBottom: 60 },
     coverImage: { width: '100%', height: '100%' },
     coverOverlay: { ...StyleSheet.absoluteFillObject },

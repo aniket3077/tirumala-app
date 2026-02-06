@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import { StatusBar } from 'expo-status-bar';
@@ -87,13 +88,6 @@ export default function LanguageSelectionScreen() {
                     >
                         <Text style={styles.buttonText}>Continue</Text>
                         <Ionicons name="arrow-forward" size={20} color="#fff" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        onPress={() => router.push('/expert/login')}
-                        style={{ marginTop: 20, padding: 10, alignSelf: 'center' }}
-                    >
-                        <Text style={{ color: Colors.light.primary, fontWeight: '600' }}>Are you an Expert? Login here</Text>
                     </TouchableOpacity>
                 </View>
             </View>

@@ -4,19 +4,20 @@
     "slug": "tirumala",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/tirumala_logo_final.png",
     "scheme": "tirumala",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": "./assets/images/tirumala_logo_final.png",
+      "bundleIdentifier": "com.aniket.tirumala"
     },
     "android": {
+      "package": "com.aniket.tirumala",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#1B5E20",
+        "foregroundImage": "./assets/images/tirumala_logo_final.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -30,12 +31,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/tirumala_logo_final.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#1B5E20",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#1B5E20"
           }
         }
       ]
@@ -43,6 +44,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "05d771a7-4fc0-4c07-843f-be0a4b9ddd60"
+      }
     }
   }
 }

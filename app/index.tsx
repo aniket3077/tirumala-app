@@ -11,7 +11,7 @@ export default function LoadingScreen() {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            router.replace('/language-selection');
+            router.replace('/welcome');
         }, 3500); // Slightly longer to appreciate the animation
 
         return () => clearTimeout(timer);
@@ -27,12 +27,13 @@ export default function LoadingScreen() {
                 resizeMode="contain"
             />
 
-            <Animated.Text
+            <Animated.View
                 entering={FadeIn.delay(1000).duration(1000)}
-                style={styles.tagline}
             >
-                Empowering Farmers
-            </Animated.Text>
+                <Animated.Text style={styles.tagline}>
+                    Empowering Farmers
+                </Animated.Text>
+            </Animated.View>
         </View>
     );
 }

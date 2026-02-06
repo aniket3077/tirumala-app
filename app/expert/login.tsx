@@ -5,9 +5,7 @@ import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/theme';
-
-// Update this to your local IP if testing on physical device
-const API_URL = 'https://tirumla-backend.vercel.app';
+import { API_URL } from '@/constants/api';
 
 export default function ExpertLoginScreen() {
     const router = useRouter();
@@ -114,6 +112,13 @@ export default function ExpertLoginScreen() {
                             <Text style={styles.loginBtnText}>Login</Text>
                         )}
                     </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => router.push('/expert/register')}
+                        style={styles.registerLink}
+                    >
+                        <Text style={styles.registerLinkText}>New Expert? <Text style={{ color: Colors.light.primary, fontWeight: '700' }}>Apply to Join</Text></Text>
+                    </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
         </View>
@@ -157,4 +162,6 @@ const styles = StyleSheet.create({
     },
     loginBtnDisabled: { opacity: 0.7 },
     loginBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    registerLink: { marginTop: 24, alignItems: 'center' },
+    registerLinkText: { color: '#666', fontSize: 14, fontWeight: '500' },
 });

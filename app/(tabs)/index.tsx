@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInRight, useSharedValue, useAnimatedStyle, useAnimatedScrollHandler, interpolate, Extrapolation } from 'react-native-reanimated';
+import { useAuth } from '@/context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -27,7 +28,12 @@ const MANDI_RATES = [
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const scrollY = useSharedValue(0);
+
+  const profile = user?.profile || user?.farmerProfile;
+  const name = profile?.fullName || profile?.name || 'Agri User';
+  const location = profile?.village || profile?.location || 'India';
 
   const scrollHandler = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
@@ -65,22 +71,29 @@ export default function DashboardScreen() {
           />
           <SafeAreaView style={styles.headerContent}>
             <View style={styles.topBar}>
-              <View>
-                <Text style={styles.greeting}>Good Morning,</Text>
-                <Text style={styles.userName}>Rahul Kumar</Text>
-                <View style={styles.locationTag}>
-                  <Ionicons name="location" size={12} color="#fff" />
-                  <Text style={styles.location}> Rampur, UP</Text>
+              <View style={styles.headerLeft}>
+                <Image
+                  source={require('../../assets/images/tirumala_logo_final.png')}
+                  style={styles.logoSmall}
+                  resizeMode="contain"
+                />
+                <View>
+                  <Text style={styles.greeting}>Good Morning,</Text>
+                  <Text style={styles.userName}>{name}</Text>
+                  <View style={styles.locationTag}>
+                    <Ionicons name="location" size={10} color="#fff" />
+                    <Text style={styles.location}> {location}</Text>
+                  </View>
                 </View>
               </View>
               <View style={styles.headerRight}>
-                <TouchableOpacity style={styles.notifBtn} onPress={() => router.push('/notifications')} activeOpacity={0.8}>
+                <TouchableOpacity style={styles.notifBtn} onPress={() => router.push('/notifications' as any)} activeOpacity={0.8}>
                   <Ionicons name="notifications" size={24} color="#fff" />
                   <View style={styles.badge} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.profileBtn} onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.8}>
                   <Image
-                    source={{ uri: 'https://ui-avatars.com/api/?name=Rahul+Kumar&background=random' }}
+                    source={{ uri: profile?.avatar || profile?.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random` }}
                     style={styles.profileImg}
                   />
                 </TouchableOpacity>
@@ -211,8 +224,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   heroImage: {
-    width: '100%',
-    height: '100%',
+    ...StyleSheet.absoluteFillObject,
   },
   heroOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -225,11 +237,26 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logoSmall: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   greeting: {
-    color: '#E0E0E0',
-    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
     fontWeight: '600',
   },
   userName: {
